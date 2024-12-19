@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Slide, toast, ToastContainer } from "react-toastify";
 import { styled } from "styled-components";
 import { mutate } from "swr";
@@ -25,6 +25,7 @@ import "react-toastify/dist/ReactToastify.css";
 import NextonNews from "@/components/main/NextonNews";
 import { TonProvider } from "@tomo-inc/tomo-telegram-sdk/dist/v2/provider/TonProvider/TonProvider";
 import { useTomo } from "@tomo-inc/tomo-telegram-sdk";
+import { TomoContext } from "@/App";
 
 const tele = (window as any).Telegram.WebApp;
 
@@ -53,6 +54,11 @@ const Main: React.FC = () => {
   const userId = tele?.initDataUnsafe?.user?.id;
 
   // Refresh TON data
+
+  const ttomo = useContext(TomoContext);
+
+  console.log(ttomo.provider);
+
   useEffect(() => {
     async function handleRefreshData() {
       setIsRefreshing(true);
