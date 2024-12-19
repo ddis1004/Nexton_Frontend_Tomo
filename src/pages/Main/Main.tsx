@@ -21,13 +21,10 @@ import FloatCloseIc from "@/assets/icons/Main/floating_close.svg";
 import FloatCsIc from "@/assets/icons/Main/floating_cs.svg";
 import { OfficialAnouncementModal } from "@/components/main/Modal/OfficialAnnouncementModal";
 
-
 import "react-toastify/dist/ReactToastify.css";
 import NextonNews from "@/components/main/NextonNews";
-
-import {useTomo } from "@tomo-inc/tomo-telegram-sdk";
-import { TomoWalletTgSdkV2 } from '@tomo-inc/tomo-telegram-sdk';
-new TomoWalletTgSdkV2();
+import { TonProvider } from "@tomo-inc/tomo-telegram-sdk/dist/v2/provider/TonProvider/TonProvider";
+import { useTomo } from "@tomo-inc/tomo-telegram-sdk";
 
 const tele = (window as any).Telegram.WebApp;
 
@@ -44,7 +41,7 @@ const Main: React.FC = () => {
 
   const { address, balance, refreshTonData, connected, tonConnectUI } = useTonConnect();
   const { nftList, isLoading, isError } = useStakeInfo(address);
-  const {openConnectModal}=useTomo();
+  const { openConnectModal, providers } = useTomo();
 
   const { trigger: triggerManageReferral } = useManageReferral();
   const { trigger } = useTrackReferral();
@@ -59,7 +56,6 @@ const Main: React.FC = () => {
   useEffect(() => {
     async function handleRefreshData() {
       setIsRefreshing(true);
-
       try {
         await Promise.all([refreshTonData(), mutate(`/data/getAllStakeInfoByAddress?address=${address}`)]);
       } catch (error) {
@@ -192,148 +188,142 @@ const Main: React.FC = () => {
     <>
       {modal && <WelcomeModal toggleModal={toggleModal} />}
       {officialModal && <OfficialAnouncementModal toggleModal={toggleOfficialModal} />}
-        <MainWrapper>
-          <Header
-            isOpen={false}
-            text="NEXTON"
-            backgroundType={false}
-            connected={connected}
-            tonConnectUI={tonConnectUI}
-          />
-          <MainMyAssetInfo
-            tonConnectUI={tonConnectUI}
-            openConnectModal={openConnectModal}
-            connected={connected}
-            address={address}
-            balance={balance}
-            refreshTonData={refreshTonData}
-            totalStaked={totalStaked}
-            isLoading={isLoading || isRefreshing}
-            isError={isError}
-          />
-          <MainBorder />
-          <NextonNews />
-          <MainBorder />
-          <ActionCards />
-          {/* @deprecated */}
-          {/* <StakeView /> */}
-          <Overlay visible={isFbOpen} onClick={closeFab} id="main page close floating button" />
-          <Fab
-            style={{
-              position: "absolute",
-              backgroundColor: "#1F53FF",
-              width: "48px",
-              height: "48px",
-              padding: "12px",
-              bottom: "98px",
-              right: "10px",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            onClick={handleFloatingButton}
+      <MainWrapper>
+        <Header isOpen={false} text="NEXTON" backgroundType={false} connected={connected} tonConnectUI={tonConnectUI} />
+        <MainMyAssetInfo
+          tonConnectUI={tonConnectUI}
+          openConnectModal={openConnectModal}
+          connected={connected}
+          address={address}
+          balance={balance}
+          refreshTonData={refreshTonData}
+          totalStaked={totalStaked}
+          isLoading={isLoading || isRefreshing}
+          isError={isError}
+        />
+        <MainBorder />
+        <NextonNews />
+        <MainBorder />
+        <ActionCards />
+        {/* @deprecated */}
+        {/* <StakeView /> */}
+        <Overlay visible={isFbOpen} onClick={closeFab} id="main page close floating button" />
+        <Fab
+          style={{
+            position: "absolute",
+            backgroundColor: "#1F53FF",
+            width: "48px",
+            height: "48px",
+            padding: "12px",
+            bottom: "98px",
+            right: "10px",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={handleFloatingButton}
+          id="main page floating button"
+        >
+          <img
+            src={isFbOpen ? FloatCloseIc : FloatCsIc}
+            alt="Floating button"
+            style={{ width: "24px", height: "24px", alignContent: "center", justifyContent: "center" }}
             id="main page floating button"
-          >
-            <img
-              src={isFbOpen ? FloatCloseIc : FloatCsIc}
-              alt="Floating button"
-              style={{ width: "24px", height: "24px", alignContent: "center", justifyContent: "center" }}
-              id="main page floating button"
-            />
-            {isFbOpen && (
-              <>
-                <Zoom in={isFbOpen} style={{ position: "absolute" }}>
-                  <Tooltip
-                    title="Support"
-                    open={true}
-                    placement="left"
-                    componentsProps={{
-                      tooltip: {
-                        sx: {
-                          bgcolor: "white",
-                          fontSize: "12px",
-                          color: "black",
-                          padding: "7px 9px",
-                          width: "73px",
-                          height: "32px",
-                          alignContent: "center",
-                          textAlign: "center",
-                          fontFamily: "Montserrat",
-                          fontWeight: "500",
-                          lineHeight: "150%",
-                          fontStyle: "normal",
-                        },
+          />
+          {isFbOpen && (
+            <>
+              <Zoom in={isFbOpen} style={{ position: "absolute" }}>
+                <Tooltip
+                  title="Support"
+                  open={true}
+                  placement="left"
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        bgcolor: "white",
+                        fontSize: "12px",
+                        color: "black",
+                        padding: "7px 9px",
+                        width: "73px",
+                        height: "32px",
+                        alignContent: "center",
+                        textAlign: "center",
+                        fontFamily: "Montserrat",
+                        fontWeight: "500",
+                        lineHeight: "150%",
+                        fontStyle: "normal",
                       },
-                      arrow: { sx: { color: "white" } },
+                    },
+                    arrow: { sx: { color: "white" } },
+                  }}
+                  arrow
+                >
+                  <Fab
+                    style={{
+                      backgroundColor: "#F8F8F8",
+                      padding: "8px",
+                      height: "40px",
+                      width: "40px",
+                      position: "absolute",
+                      bottom: "116px",
                     }}
-                    arrow
+                    onClick={() => {
+                      window.open("https://t.me/m/-Y3bstHbMzE9");
+                    }}
+                    id="mainpage floating button support"
                   >
-                    <Fab
-                      style={{
-                        backgroundColor: "#F8F8F8",
-                        padding: "8px",
-                        height: "40px",
-                        width: "40px",
-                        position: "absolute",
-                        bottom: "116px",
-                      }}
-                      onClick={() => {
-                        window.open("https://t.me/m/-Y3bstHbMzE9");
-                      }}
-                      id="mainpage floating button support"
-                    >
-                      <img src={FloatSupportIc} alt="community link" id="mainpage floating button support" />
-                    </Fab>
-                  </Tooltip>
-                </Zoom>
-                <Zoom in={isFbOpen}>
-                  <Tooltip
-                    title="Community"
-                    open={true}
-                    placement="left"
-                    componentsProps={{
-                      tooltip: {
-                        sx: {
-                          bgcolor: "white",
-                          fontSize: "12px",
-                          color: "black",
-                          padding: "7px 12px",
-                          width: "116px",
-                          height: "32px",
-                          alignContent: "center",
-                          textAlign: "center",
-                          fontFamily: "Montserrat",
-                          fontWeight: "500",
-                          lineHeight: "150%",
-                          fontStyle: "normal",
-                        },
+                    <img src={FloatSupportIc} alt="community link" id="mainpage floating button support" />
+                  </Fab>
+                </Tooltip>
+              </Zoom>
+              <Zoom in={isFbOpen}>
+                <Tooltip
+                  title="Community"
+                  open={true}
+                  placement="left"
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        bgcolor: "white",
+                        fontSize: "12px",
+                        color: "black",
+                        padding: "7px 12px",
+                        width: "116px",
+                        height: "32px",
+                        alignContent: "center",
+                        textAlign: "center",
+                        fontFamily: "Montserrat",
+                        fontWeight: "500",
+                        lineHeight: "150%",
+                        fontStyle: "normal",
                       },
-                      arrow: { sx: { color: "white" } },
+                    },
+                    arrow: { sx: { color: "white" } },
+                  }}
+                  arrow
+                >
+                  <Fab
+                    style={{
+                      backgroundColor: "#F8F8F8",
+                      padding: "8px",
+                      height: "40px",
+                      width: "40px",
+                      position: "absolute",
+                      bottom: "66px",
                     }}
-                    arrow
+                    onClick={() => {
+                      window.open("https://t.me/+YBNeM9m_yhtlNzM9");
+                    }}
+                    id="main page floating button community"
                   >
-                    <Fab
-                      style={{
-                        backgroundColor: "#F8F8F8",
-                        padding: "8px",
-                        height: "40px",
-                        width: "40px",
-                        position: "absolute",
-                        bottom: "66px",
-                      }}
-                      onClick={() => {
-                        window.open("https://t.me/+YBNeM9m_yhtlNzM9");
-                      }}
-                      id="main page floating button community"
-                    >
-                      <img src={FloatCommunityIc} alt="community link" id="main page floating button community" />
-                    </Fab>
-                  </Tooltip>
-                </Zoom>
-              </>
-            )}
-          </Fab>
-          <MainNavigationBar />
-        </MainWrapper>
+                    <img src={FloatCommunityIc} alt="community link" id="main page floating button community" />
+                  </Fab>
+                </Tooltip>
+              </Zoom>
+            </>
+          )}
+        </Fab>
+        <MainNavigationBar />
+      </MainWrapper>
       <ToastContainer
         position="top-center"
         autoClose={4000}
@@ -350,6 +340,33 @@ const Main: React.FC = () => {
     </>
   );
 };
+
+// export default function Wrapper() {
+//   const [ColorScheme] = useThemeParams();
+//   console.log(BASE_URL_DEV);
+
+//   return (
+//     <TomoProvider
+//       theme={ColorScheme}
+//       supportedProviders={["TON"]}
+//       supportedConnects={[CONNECT_MAP.TOMO_MINI_APP, CONNECT_MAP.TON_CONNECT]}
+//       manifestUrl={"https://d8o5s6z018yzr.cloudfront.net/manifestUrl.json"}
+//       tomoOptions={{
+//         injected: true,
+//         ...BASE_URL_DEV,
+//         // metaData: {
+//         //   bridge?: string;
+//         //   connect?: string;
+//         //   connect_direct_link?: string;
+//         //   metaData: MetaData;
+//         //   injected: boolean;
+//         // }
+//       }}
+//     >
+//       <Main />
+//     </TomoProvider>
+//   );
+// }
 
 export default Main;
 
